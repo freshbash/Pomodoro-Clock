@@ -7,10 +7,10 @@ import { faPlus, faMinus, faPlay, faPause, faRefresh } from '@fortawesome/free-s
 function TimeSetter(props) {
   return (
     <div>
-      <div id={props.id + "-label"}>props.innerHTML</div>
+      <div id={props.id + "-label"}>{props.innerHTML}</div>
       <div id={props.id + "-length-setter"}>
         <button id={props.id + "-decrement"} className="btn"><FontAwesomeIcon icon={faMinus} /></button>
-        <div id={props.id + "-length"}></div>
+        <div id={props.id + "-length"}>{props.id === "session" ? 25 : 5}</div>
         <button id={props.id + "-increment"} className="btn"><FontAwesomeIcon icon={faPlus} /></button>
       </div>
     </div>
@@ -49,17 +49,12 @@ class Timer extends React.Component {
 }
 
 class Presentational extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     return (
-      <div>
-        <div id="display">
-          <TimeSetter id="session" innerHTML="Session Length" />
-          <TimeSetter id="break" innerHTML="Break Length" />
-          <Timer />
-        </div>
+      <div id="display">
+        <TimeSetter id="session" innerHTML="Session Length" />
+        <TimeSetter id="break" innerHTML="Break Length" />
+        <Timer />
       </div>
     );
   }  
