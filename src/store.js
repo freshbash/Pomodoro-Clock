@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from "redux";
-import { MapStateToProps, MapDispatchToProps } from "react-redux";
+// import { MapStateToProps, MapDispatchToProps } from "react-redux";
 
 //Type constants
 const INCREMENTSESSION = "INCREMENTSESSION";
@@ -114,13 +114,13 @@ export const store = configureStore({
 })
 
 
-export const MapStateToProps = (state) => {
+export const mapStateToProps = (state) => {
     return ({
       state: state
     });
 }
 
-export const MapDispatchToProps = (dispatch) => {
+export const mapDispatchToProps = (dispatch) => {
     return ({
         incrementSessionTimer: () => {
             dispatch(sessInc);

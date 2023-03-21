@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import ReactRedux from 'react-redux';
-import { MapStateToProps, MapDispatchToProps } from './store';
+import { connect } from 'react-redux';
+import { mapStateToProps, mapDispatchToProps } from './store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus, faPlay, faPause, faRefresh } from '@fortawesome/free-solid-svg-icons';
 
@@ -84,7 +84,6 @@ class Presentational extends React.Component {
   }  
 }
 
-const connect = ReactRedux.connect;
-const Container = connect(MapStateToProps, MapDispatchToProps)(Presentational);
+const Container = connect(mapStateToProps, mapDispatchToProps)(Presentational);
 
 export default Container;
