@@ -127,9 +127,9 @@ function TimeSetter(props) {
     <div>
       <div id={props.name + "-label"}>{props.string}</div>
       <div id={props.name + "-length-setter"}>
-        <button id={props.name + "-decrement"} className="btn" disabled={props.details.disabled}><FontAwesomeIcon icon={faMinus} /></button>
-        <div id={props.name + "-length"}>{props.name === "session" ? props.details.sessionTime : props.details.breakTime}</div>
-        <button id={props.name + "-increment"} className="btn" disabled={props.details.disabled}><FontAwesomeIcon icon={faPlus} /></button>
+        <button id={props.name + "-decrement"} className="btn" disabled={props.details.disabled.disabled}><FontAwesomeIcon icon={faMinus} /></button>
+        <div id={props.name + "-length"}>{props.name === "session" ? props.details.sessionTime.sessionTime : props.details.breakTime.breakTime}</div>
+        <button id={props.name + "-increment"} className="btn" disabled={props.details.disabled.disabled}><FontAwesomeIcon icon={faPlus} /></button>
       </div>
     </div>
   )
@@ -139,9 +139,9 @@ class Timer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sessionLength: this.props.details.sessionTime,
-      breakLength : this.props.details.breakTime,
-      minutesLeft: this.props.details.sessionTime,
+      sessionLength: this.props.details.sessionTime.sessionTime,
+      breakLength : this.props.details.breakTime.breakTime,
+      minutesLeft: this.props.details.sessionTime.sessionTime,
       secondsLeft: 0,
       sessionActive: true,
       timerActive: false
