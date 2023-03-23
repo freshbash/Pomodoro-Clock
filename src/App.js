@@ -165,26 +165,37 @@ class Timer extends React.Component {
       minutesLeft: 25,
       secondsLeft: 0,
       sessionActive: true,
-      timerActive: false
+      timerActive: false,
     }
     this.startStopTimer = this.startStopTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
   }
 
   startStopTimer() {
-    
+    this.setState((state) => {
+      return {
+        timerActive: !(state.timerActive)
+      };
+    })
+    //Should start and stop the timer
+    //If Timer reaches zero...
+    //   1. Play a second long beep.
+    //   2. Start the next timer(session/break)
   }
 
   resetTimer() {
+    //Pause and reset the beep.
     this.props.access.resetClock();
-    this.state.secondsLeft = 0;
+    this.setState({
+      secondsLeft: 0
+    });
   }
 
   render() {
     
     const sessionLength = this.props.access.state.sessionTime;
     let timeLeft = '';
-    
+
     if (sessionLength < 10) {
       timeLeft += '0'+sessionLength;
     }else {
@@ -202,7 +213,7 @@ class Timer extends React.Component {
     return (
       <div>
         <div id="timer-label">{this.state.sessionActive ? "Session" : "Break"}</div>
-        <div id="time-left">{timeLeft}</div>
+        <div id="time-left">{this.state.count}</div>
         <div id="control-buttons">
           <button id="start-stop" className="btn" onClick={this.startStopTimer}>{this.state.timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
           <button id="reset" className="btn" onClick={this.resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
