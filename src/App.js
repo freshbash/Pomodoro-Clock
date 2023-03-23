@@ -15,6 +15,7 @@ const DECREMENTSESSION = "DECREMENTSESSION";
 const DECREMENTBREAK = "DECREMENTBREAK";
 const DISABLE = "DISABLE";
 const ENABLE = "ENABLE";
+const RESET = "RESET";
 
 //Action Creators
 const sessInc = () => {
@@ -53,49 +54,63 @@ const buttonDe = () => {
     });
 }
 
+const reset = () => {
+  return ({
+    type: RESET
+  })
+}
+
 //Slice Reducers
 const sessionReducer = (state=25, action) => {
     switch(action.type) {
         case INCREMENTSESSION:
-            return (
-              state + 1
-            );
+          return (
+            state + 1
+          );
         case DECREMENTSESSION:
-            return (
-                state - 1
-            );
+          return (
+            state - 1
+          );
+        case RESET:
+          return (
+            25
+          )
         default:
-            return state;
+          return state;
     }
 }
 
 const breakReducer = (state=5, action) => {
     switch(action.type) {
         case INCREMENTBREAK:
-            return (
-                state + 1
-            );
+          return (
+            state + 1
+          );
         case DECREMENTBREAK:
-            return (
-                state - 1
-            );
+          return (
+            state - 1
+          );
+        case RESET:
+          return (
+            5
+          )
         default:
-            return state;
+          return state;
     }
 }
 
 const buttonReducer = (state=false, action) => {
     switch(action.type) {
         case ENABLE:
-            return ({
-                disabled: false
-            });
+          return (
+            false
+          );
         case DISABLE:
-            return ({
-                disabled: true
-            });
+          return (
+            true
+          );
         default:
-            return state;
+          return state;
     }
 }
 
@@ -115,19 +130,19 @@ export const store = configureStore({reducer : rootReducer});
 function TimeSetter(props) {
   function increment() {
     if (props.name === "session") {
-      console.log(props.access.state.sessionTime);
+      props.access.incrementSessionTimer();
     }
     else {
-      console.log(props.access.state.breakTime);
+      props.access.incrementBreakTimer();      
     }
   }
 
   function decrement () {
     if (props.name === "session") {
-      console.log(props.access.state.sessionTime);
+      props.access.decrementSessionTimer();
     }
     else {
-      console.log(props.access.state.breakTime);
+      props.access.decrementBreakTimer();      
     }
   }
   
@@ -147,9 +162,7 @@ class Timer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sessionLength: this.props.access.state.sessionTime,
-      breakLength : this.props.access.state.breakTime,
-      minutesLeft: this.props.access.state.sessionTime,
+      minutesLeft: 25,
       secondsLeft: 0,
       sessionActive: true,
       timerActive: false
@@ -163,16 +176,19 @@ class Timer extends React.Component {
   }
 
   resetTimer() {
-
+    this.props.access.resetClock();
+    this.state.secondsLeft = 0;
   }
 
   render() {
     
+    const sessionLength = this.props.access.state.sessionTime;
     let timeLeft = '';
-    if (this.state.minutesLeft < 10) {
-      timeLeft += '0'+this.state.minutesLeft;
+    
+    if (sessionLength < 10) {
+      timeLeft += '0'+sessionLength;
     }else {
-      timeLeft += this.state.minutesLeft;
+      timeLeft += sessionLength;
     }
 
     timeLeft += ':';
@@ -236,6 +252,10 @@ const mapDispatchToProps = (dispatch) => {
 
       disableButtons: () => {
           dispatch(buttonDe());
+      },
+
+      resetClock: () => {
+        dispatch(reset());
       }
   });
 }
