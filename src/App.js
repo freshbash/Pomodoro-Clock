@@ -16,14 +16,6 @@ const DECREMENTBREAK = "DECREMENTBREAK";
 const DISABLE = "DISABLE";
 const ENABLE = "ENABLE";
 
-
-//Default State
-const defaultState = {
-    sessionTime: 25,
-    breakTime: 5,
-    disabled: false
-};
-
 //Action Creators
 const sessInc = () => {
     return ({
@@ -61,38 +53,38 @@ const buttonDe = () => {
     });
 }
 
-//Reducers
-const sessionReducer = (state=defaultState, action) => {
+//Slice Reducers
+const sessionReducer = (state=25, action) => {
     switch(action.type) {
         case INCREMENTSESSION:
-            return ({
-                sessionTime: state.sessionTime + 1
-            });
+            return (
+              state + 1
+            );
         case DECREMENTSESSION:
-            return ({
-                sessionTime: state.sessionTime - 1
-            });
+            return (
+                state - 1
+            );
         default:
             return state;
     }
 }
 
-const breakReducer = (state= defaultState, action) => {
+const breakReducer = (state=5, action) => {
     switch(action.type) {
         case INCREMENTBREAK:
-            return ({
-                breakTime: state.breakTime + 1
-            });
+            return (
+                state + 1
+            );
         case DECREMENTBREAK:
-            return ({
-                breakTime: state.breakTime - 1
-            });
+            return (
+                state - 1
+            );
         default:
             return state;
     }
 }
 
-const buttonReducer = (state=defaultState, action) => {
+const buttonReducer = (state=false, action) => {
     switch(action.type) {
         case ENABLE:
             return ({
@@ -107,6 +99,7 @@ const buttonReducer = (state=defaultState, action) => {
     }
 }
 
+//Root reducer
 const rootReducer = combineReducers({
     sessionTime: sessionReducer,
     breakTime: breakReducer,
@@ -120,16 +113,31 @@ export const store = configureStore({reducer : rootReducer});
 
 //React
 function TimeSetter(props) {
-  console.log(props.details.sessionTime);
-  console.log(props.details.breakTime);
-  console.log(props.details.disabled);
+  function increment() {
+    if (props.name === "session") {
+      console.log(props.access.state.sessionTime);
+    }
+    else {
+      console.log(props.access.state.breakTime);
+    }
+  }
+
+  function decrement () {
+    if (props.name === "session") {
+      console.log(props.access.state.sessionTime);
+    }
+    else {
+      console.log(props.access.state.breakTime);
+    }
+  }
+  
   return (
     <div>
       <div id={props.name + "-label"}>{props.string}</div>
       <div id={props.name + "-length-setter"}>
-        <button id={props.name + "-decrement"} className="btn" disabled={props.details.disabled.disabled}><FontAwesomeIcon icon={faMinus} /></button>
-        <div id={props.name + "-length"}>{props.name === "session" ? props.details.sessionTime.sessionTime : props.details.breakTime.breakTime}</div>
-        <button id={props.name + "-increment"} className="btn" disabled={props.details.disabled.disabled}><FontAwesomeIcon icon={faPlus} /></button>
+        <button id={props.name + "-decrement"} className="btn" onClick={decrement} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faMinus} /></button>
+        <div id={props.name + "-length"}>{props.name === "session" ? props.access.state.sessionTime : props.access.state.breakTime}</div>
+        <button id={props.name + "-increment"} className="btn" onClick={increment} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faPlus} /></button>
       </div>
     </div>
   )
@@ -139,9 +147,9 @@ class Timer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sessionLength: this.props.details.sessionTime.sessionTime,
-      breakLength : this.props.details.breakTime.breakTime,
-      minutesLeft: this.props.details.sessionTime.sessionTime,
+      sessionLength: this.props.access.state.sessionTime,
+      breakLength : this.props.access.state.breakTime,
+      minutesLeft: this.props.access.state.sessionTime,
       secondsLeft: 0,
       sessionActive: true,
       timerActive: false
@@ -151,13 +159,11 @@ class Timer extends React.Component {
   }
 
   startStopTimer() {
-    console.log(store.getState());
-    console.log("startStop Button working");
+    
   }
 
   resetTimer() {
-    console.log(store.getState());
-    console.log("reset button working");
+
   }
 
   render() {
@@ -193,16 +199,16 @@ class Timer extends React.Component {
 export function Presentational(props) {
   return (
     <div id="display">
-      <TimeSetter name="session" string="Session Length" details={props.details} />
-      <TimeSetter name="break" string="Break Length" details={props.details} />
-      <Timer details={props.details} />
+      <TimeSetter name="session" string="Session Length" access={props} />
+      <TimeSetter name="break" string="Break Length" access={props} />
+      <Timer access={props} />
     </div>
   );  
 }
 
 const mapStateToProps = (state) => {
   return ({
-    details: state
+    state: state
   });
 }
 
