@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useRef } from 'react';
 import './App.css';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -129,19 +129,19 @@ export const store = configureStore({reducer : rootReducer});
 //React
 function TimeSetter(props) {
   function increment() {
-    if (props.name === "session") {
+    if (props.name === "session" && props.access.state.sessionTime < 60) {
       props.access.incrementSessionTimer();
     }
-    else {
+    else if (props.name === "break" && props.access.state.breakTime < 60) {
       props.access.incrementBreakTimer();      
     }
   }
 
   function decrement () {
-    if (props.name === "session") {
+    if (props.name === "session" && props.access.state.sessionTime > 1) {
       props.access.decrementSessionTimer();
     }
-    else {
+    else if (props.name === "break" && props.access.state.breakTime > 1) {
       props.access.decrementBreakTimer();      
     }
   }
@@ -152,75 +152,104 @@ function TimeSetter(props) {
       <div id={props.name + "-length-setter"}>
         <button id={props.name + "-decrement"} className="btn" onClick={decrement} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faMinus} /></button>
         <div id={props.name + "-length"}>{props.name === "session" ? props.access.state.sessionTime : props.access.state.breakTime}</div>
-        <button id={props.name + "-increment"} className="btn" onClick={increment} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faPlus} /></button>
+        <button id={props.name + "-increment"} className="btn" onClick={increment} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faPlus} /></button>        
       </div>
     </div>
   )
 }
 
-class Timer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      minutesLeft: 25,
-      secondsLeft: 0,
-      sessionActive: true,
-      timerActive: false,
-    }
-    this.startStopTimer = this.startStopTimer.bind(this);
-    this.resetTimer = this.resetTimer.bind(this);
-  }
+function Timer(props) {
+  
+  //Local State
+  const [minutesLeft, setMinutesLeft] = useState(props.access.state.sessionTime);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [sessionActive, setSessionActive] = useState(true);
+  const [timerActive, setTimerActive] = useState(false);
+  const [count, setCount] = useState(0);
 
-  startStopTimer() {
-    this.setState((state) => {
-      return {
-        timerActive: !(state.timerActive)
-      };
-    })
+  //Ref
+  const timerRef = useRef(null);
+
+  function startStopTimer() {
+
+    clearInterval(timerRef.current);
+
+    let seconds = secondsLeft;
+    let minutes = minutesLeft;
+
+    if (!timerActive) {
+      timerRef.current = setInterval(() => {
+        // console.log(secondsLeft);
+        if(minutes === 0 && seconds === 0) {
+          console.log("Beeeeeeep!");
+          console.log("Start next timer!");
+          clearInterval(timerRef.current);
+        }
+        else if(seconds === 0) {
+          // console.log("hello1");
+          seconds = 59;
+          minutes--;
+          setSecondsLeft(seconds);
+          setMinutesLeft(minutes);
+        }
+        else {
+          // console.log("hello2");
+          seconds--;
+          setSecondsLeft(seconds);
+        }        
+      }, 1000);
+      // let i = 0;
+      // setCount(0);    
+      // timerRef.current = setInterval(() => {
+      //   i++;
+      //   setCount(i);
+      // }, 1000);
+    }
+
+    setTimerActive(!timerActive);
     //Should start and stop the timer
     //If Timer reaches zero...
     //   1. Play a second long beep.
     //   2. Start the next timer(session/break)
   }
 
-  resetTimer() {
+  function resetTimer() {
     //Pause and reset the beep.
-    this.props.access.resetClock();
-    this.setState({
-      secondsLeft: 0
-    });
+    props.access.resetClock();
+    setMinutesLeft(25);
+    setSecondsLeft(0);
+    clearInterval(timerRef.current);
+    setTimerActive(false);
   }
 
-  render() {
-    
-    const sessionLength = this.props.access.state.sessionTime;
-    let timeLeft = '';
+  //Format time left in mm:ss format
+  let timeLeft = '';
 
-    if (sessionLength < 10) {
-      timeLeft += '0'+sessionLength;
-    }else {
-      timeLeft += sessionLength;
-    }
+  if (minutesLeft < 10) {
+    timeLeft += '0'+minutesLeft;
+  }else {
+    timeLeft += minutesLeft;
+  }
 
-    timeLeft += ':';
+  timeLeft += ':';
 
-    if (this.state.secondsLeft < 10) {
-      timeLeft += '0'+this.state.secondsLeft;
-    } else {
-      timeLeft += this.state.secondsLeft;
-    }
+  if (secondsLeft < 10) {
+    timeLeft += '0'+secondsLeft;
+  } else {
+    timeLeft += secondsLeft;
+  }
 
-    return (
-      <div>
-        <div id="timer-label">{this.state.sessionActive ? "Session" : "Break"}</div>
-        <div id="time-left">{this.state.count}</div>
-        <div id="control-buttons">
-          <button id="start-stop" className="btn" onClick={this.startStopTimer}>{this.state.timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
-          <button id="reset" className="btn" onClick={this.resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
-        </div>
+  return (
+    <div>
+      <div id="timer-label">{sessionActive ? "Session" : "Break"}</div>
+      <div id="time-left">{timeLeft}</div>
+      <div id="control-buttons">
+        <button id="start-stop" className="btn" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
+        <button id="reset" className="btn" onClick={resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
       </div>
-    )
-  }
+      <audio id="beep" src="./beep.mp3"></audio>
+    </div>
+  )
 }
 
 export function Presentational(props) {
