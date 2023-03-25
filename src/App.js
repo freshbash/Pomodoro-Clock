@@ -61,7 +61,7 @@ const reset = () => {
 }
 
 //Slice Reducers
-const sessionReducer = (state=2, action) => {
+const sessionReducer = (state=25, action) => {
     switch(action.type) {
         case INCREMENTSESSION:
           return (
@@ -80,7 +80,7 @@ const sessionReducer = (state=2, action) => {
     }
 }
 
-const breakReducer = (state=1, action) => {
+const breakReducer = (state=5, action) => {
     switch(action.type) {
         case INCREMENTBREAK:
           return (
@@ -166,24 +166,19 @@ function Timer(props) {
   const [sessionActive, setSessionActive] = useState(true);
   const [timerActive, setTimerActive] = useState(false);
   const [timerPaused, setTimerPaused] = useState(false);
-  // const [count, setCount] = useState(0);
 
   //Ref
   const timerRef = useRef(null);
+  const currentBreakState = useRef(props.access.state.breakTime);
+  const currentSessionState = useRef(props.access.state.sessionTime);
 
   function startStopTimer() {
 
-    clearInterval(timerRef.current);
-    // props.access.enableButtons();    
-
     if (!timerActive) {
-
-        // console.log("Timer block 1 entered!");
-        // console.log("timer active?", timerActive, "timer paused?", timerPaused);
 
         props.access.disableButtons();
 
-        let session = sessionActive;
+        let session = sessionActive;        
         let seconds = secondsLeft;
         let minutes;
         if (!timerPaused) {
@@ -200,11 +195,8 @@ function Timer(props) {
         }
 
         timerRef.current = setInterval(() => {
-        // console.log(secondsLeft);
         if(minutes === 0 && seconds === 0) {
-            // console.log("Beeeeeeep!");
             document.getElementById("beep").play();
-            // console.log("Start next timer!");
             session = !session;
             setSessionActive(session);
             if (session) {
@@ -216,54 +208,40 @@ function Timer(props) {
             seconds = 0;
             setMinutesLeft(minutes);
             setSecondsLeft(seconds);
-            // clearInterval(timerRef.current);
         }
         else if(seconds === 0) {
-            // console.log("hello1");
             seconds = 59;
             minutes--;
             setSecondsLeft(seconds);
             setMinutesLeft(minutes);
         }
         else {
-          // console.log("hello2");
           seconds--;
           setSecondsLeft(seconds);
         }        
       }, 1000);
 
       setTimerPaused(false);
-      // let i = 0;
-      // setCount(0);    
-      // timerRef.current = setInterval(() => {
-      //   i++;
-      //   setCount(i);
-      // }, 1000);
     }
     else {
-        // console.log("Timer block 2 entered");
-        // console.log("timer active?", timerActive, "timer paused?", timerPaused);
         setTimerPaused(true);
         props.access.enableButtons();
+        clearInterval(timerRef.current);
     }
 
     setTimerActive(!timerActive);
-    //Should start and stop the timer
-    //If Timer reaches zero...
-    //   1. Play a second long beep.
-    //   2. Start the next timer(session/break)
   }
 
   function resetTimer() {
     //Pause and reset the beep.
     props.access.resetClock();
-    // setMinutesLeft(props.access.state.sessionTime);
     setSessionActive(true);
     setSecondsLeft(0);
     clearInterval(timerRef.current);
     setTimerActive(false);
     setTimerPaused(false);
     props.access.enableButtons();
+    document.getElementById("beep").load();
   }
 
   //Format time left in mm:ss format
@@ -316,7 +294,7 @@ function Timer(props) {
         <div id="timer-label">{sessionActive ? "Session" : "Break"}</div>
         <div id="time-left">{timeLeft}</div>
         <div id="control-buttons">
-            <button id="start-stop" className="btn" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
+            <button id="start_stop" className="btn" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
             <button id="reset" className="btn" onClick={resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
         </div>      
         </div>
