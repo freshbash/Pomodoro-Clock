@@ -161,8 +161,8 @@ function TimeSetter(props) {
 function Timer(props) {
   
   //Local State
-  const [minutesLeft, setMinutesLeft] = useState(null);
-  const [secondsLeft, setSecondsLeft] = useState(null);
+  const [minutesLeft, setMinutesLeft] = useState(props.access.state.sessionTime);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const [sessionActive, setSessionActive] = useState(true);
   const [timerActive, setTimerActive] = useState(false);
   const [timerPaused, setTimerPaused] = useState(false);
@@ -174,23 +174,17 @@ function Timer(props) {
   function startStopTimer() {
 
     clearInterval(timerRef.current);
-    props.access.enableButtons();    
+    // props.access.enableButtons();    
 
     if (!timerActive) {
 
-        console.log("Timer block 2 entered!");
-        console.log("timer active?", timerActive, "timer paused?", timerPaused);
+        // console.log("Timer block 1 entered!");
+        // console.log("timer active?", timerActive, "timer paused?", timerPaused);
 
         props.access.disableButtons();
 
-        let seconds = 0;
-        let minutes;
-        if (sessionActive) {
-        minutes = props.access.state.sessionTime;
-        }
-        else {
-        minutes = props.access.state.breakTime;
-        }
+        let seconds = secondsLeft;
+        let minutes = minutesLeft;
 
         timerRef.current = setInterval(() => {
         // console.log(secondsLeft);
@@ -198,11 +192,15 @@ function Timer(props) {
             // console.log("Beeeeeeep!");
             document.getElementById("beep").play();
             // console.log("Start next timer!");
-            setSessionActive(false);
-
-
-            clearInterval(timerRef.current);
-            props.access.enableButtons();
+            setSessionActive(!sessionActive);
+            if (sessionActive) {
+                minutes = props.access.state.breakTime;
+            }
+            else {
+                minutes = props.access.state.sessionTime;
+            }
+            seconds = 0;
+            // clearInterval(timerRef.current);
         }
         else if(seconds === 0) {
             // console.log("hello1");
@@ -217,6 +215,8 @@ function Timer(props) {
           setSecondsLeft(seconds);
         }        
       }, 1000);
+
+      setTimerPaused(false);
       // let i = 0;
       // setCount(0);    
       // timerRef.current = setInterval(() => {
@@ -225,9 +225,10 @@ function Timer(props) {
       // }, 1000);
     }
     else {
-        console.log("Timer block 2 entered");
-        console.log("timer active?", timerActive, "timer paused?", timerPaused);
-        setTimerActive(true);
+        // console.log("Timer block 2 entered");
+        // console.log("timer active?", timerActive, "timer paused?", timerPaused);
+        setTimerPaused(true);
+        props.access.enableButtons();
     }
 
     setTimerActive(!timerActive);
@@ -252,6 +253,8 @@ function Timer(props) {
   let timeLeft = '';
 
   if(timerActive || timerPaused) {
+    // console.log("Time render block 1 entered!");
+    // console.log("timer active?", timerActive, "timer paused?", timerPaused);
     if (minutesLeft < 10) {
       timeLeft += '0'+minutesLeft;
     }else {
@@ -267,37 +270,39 @@ function Timer(props) {
     }
   }
   else {
+    // console.log("Time render block 2 entered!");
+    // console.log("timer active?", timerActive, "timer paused?", timerPaused);
     if (sessionActive) {
-      if(props.access.state.sessionTime < 10) {
-        timeLeft += '0' + props.access.state.sessionTime;
-      }
-      else {
-        timeLeft += props.access.state.sessionTime;
-      }
+        if(props.access.state.sessionTime < 10) {
+            timeLeft += '0' + props.access.state.sessionTime;
+        }
+        else {
+            timeLeft += props.access.state.sessionTime;
+        }
 
-      timeLeft += ":00";
+        timeLeft += ":00";
     }
     else {
-      if(props.access.state.breakTime < 10) {
-        timeLeft += '0' + props.access.state.breakTime;
-      }
-      else {
-        timeLeft += props.access.state.breakTime;
-      }
+        if(props.access.state.breakTime < 10) {
+            timeLeft += '0' + props.access.state.breakTime;
+        }
+        else {
+            timeLeft += props.access.state.breakTime;
+        }
 
-      timeLeft += ":00";
+        timeLeft += ":00";
     }
   }
 
   return (
     <div>
-      <div id="timer-label">{sessionActive ? "Session" : "Break"}</div>
-      <div id="time-left">{timeLeft}</div>
-      <div id="control-buttons">
-        <button id="start-stop" className="btn" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
-        <button id="reset" className="btn" onClick={resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
-      </div>      
-    </div>
+        <div id="timer-label">{sessionActive ? "Session" : "Break"}</div>
+        <div id="time-left">{timeLeft}</div>
+        <div id="control-buttons">
+            <button id="start-stop" className="btn" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
+            <button id="reset" className="btn" onClick={resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
+        </div>      
+        </div>
   )
 }
 
@@ -313,7 +318,7 @@ export function Presentational(props) {
 
 const mapStateToProps = (state) => {
   return ({
-    state: state
+      state: state
   });
 }
 
@@ -344,7 +349,7 @@ const mapDispatchToProps = (dispatch) => {
       },
 
       resetClock: () => {
-        dispatch(reset());
+          dispatch(reset());
       }
   });
 }
