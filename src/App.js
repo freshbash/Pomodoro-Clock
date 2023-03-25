@@ -61,7 +61,7 @@ const reset = () => {
 }
 
 //Slice Reducers
-const sessionReducer = (state=25, action) => {
+const sessionReducer = (state=2, action) => {
     switch(action.type) {
         case INCREMENTSESSION:
           return (
@@ -80,7 +80,7 @@ const sessionReducer = (state=25, action) => {
     }
 }
 
-const breakReducer = (state=5, action) => {
+const breakReducer = (state=1, action) => {
     switch(action.type) {
         case INCREMENTBREAK:
           return (
@@ -161,7 +161,7 @@ function TimeSetter(props) {
 function Timer(props) {
   
   //Local State
-  const [minutesLeft, setMinutesLeft] = useState(props.access.state.sessionTime);
+  const [minutesLeft, setMinutesLeft] = useState(null);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [sessionActive, setSessionActive] = useState(true);
   const [timerActive, setTimerActive] = useState(false);
@@ -183,8 +183,21 @@ function Timer(props) {
 
         props.access.disableButtons();
 
+        let session = sessionActive;
         let seconds = secondsLeft;
-        let minutes = minutesLeft;
+        let minutes;
+        if (!timerPaused) {
+            if (session) {
+                minutes = props.access.state.sessionTime;
+            }
+            else {
+                minutes = props.access.state.breakTime;
+            }
+            setMinutesLeft(minutes);
+        }
+        else {
+            minutes = minutesLeft;
+        }
 
         timerRef.current = setInterval(() => {
         // console.log(secondsLeft);
@@ -192,14 +205,17 @@ function Timer(props) {
             // console.log("Beeeeeeep!");
             document.getElementById("beep").play();
             // console.log("Start next timer!");
-            setSessionActive(!sessionActive);
-            if (sessionActive) {
-                minutes = props.access.state.breakTime;
-            }
-            else {
+            session = !session;
+            setSessionActive(session);
+            if (session) {
                 minutes = props.access.state.sessionTime;
             }
+            else {
+                minutes = props.access.state.breakTime;
+            }
             seconds = 0;
+            setMinutesLeft(minutes);
+            setSecondsLeft(seconds);
             // clearInterval(timerRef.current);
         }
         else if(seconds === 0) {
@@ -241,12 +257,13 @@ function Timer(props) {
   function resetTimer() {
     //Pause and reset the beep.
     props.access.resetClock();
-    setMinutesLeft(25);
+    // setMinutesLeft(props.access.state.sessionTime);
+    setSessionActive(true);
     setSecondsLeft(0);
     clearInterval(timerRef.current);
     setTimerActive(false);
-    props.access.enableButtons();
     setTimerPaused(false);
+    props.access.enableButtons();
   }
 
   //Format time left in mm:ss format
