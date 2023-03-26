@@ -1,5 +1,105 @@
+#root {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: lightslategray;
+}
+
 #display {
+    width: 500px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    row-gap: 50px;
+    border: 5px solid rgb(49, 49, 49);
+    border-radius: 10px;
+    padding: 30px;
+    background-color: rgb(78, 78, 78);
+}
+
+#timer {
+    grid-column: 1/3;
+}
+
+#session-length-setter, #break-length-setter {
+    display: flex;
+    justify-content: center;
+    border: 1px solid lightgray;
+    border-radius: 75px 75px;
+    background-color: black;
+}
+
+#session-label, #break-label {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+#session-length, #break-length {
+    padding: 6px 6px;
+    width: 30px;    
+}
+
+#session-decrement, #break-decrement {
+    border-right: 1px solid lightgrey;    
+}
+
+#session-increment, #break-increment {
+    border-left: 1px solid lightgrey;
+}
+
+#session-decrement, #break-decrement, #session-increment, #break-increment {
+    background-color: rgb(49, 49, 49);
+    border-radius: 50%;
+    color: white;
+}
+
+#session-decrement:hover, #break-decrement:hover, #session-increment:hover, #break-increment:hover {
+    background-color: rgb(65, 65, 65);
+}
+
+#timer {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+#timer-label {
+    padding: 5px 20px;
+    font-size: 24px;
+    border: 5px solid rgb(54, 54, 54);
+    text-align: center;
+    border-radius: 5px;
+    background-color: black;
+}
+
+#time-left {
+    width: 132px;
+    padding: 10px;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 32px;
+    background-color: black;
+    border: 5px solid rgb(54, 54, 54);
+    color: white;
+    border-radius: 5px;
+}
+
+#control-buttons {
+    margin-top: 20px;
+    height: 50px;
+    width: 132px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* #start_stop {
+    width: 50px;
+} */
+
+#start_stop, #reset {
+    font-size: 24px;
+    width: 50px;
 }

@@ -167,7 +167,7 @@ function TimeSetter(props) {
   }
   
   return (
-    <div>
+    <div id={props.name + "setter"}>
       <div id={props.name + "-label"}>{props.string}</div>
       <div id={props.name + "-length-setter"}>
         <button id={props.name + "-decrement"} className="btn" onClick={decrement} disabled={props.access.globalState.disabled}><FontAwesomeIcon icon={faMinus} /></button>
@@ -297,18 +297,12 @@ function Timer(props) {
   if (timerPaused) {    
     if (sessionActive) {
       if (initTimerVal.current !== props.access.globalState.sessionTime) {
-        // console.log("A global state change has occurred(sessionTime)");
-        // console.log("Time before play: ", initTimerVal.current);
-        // console.log("Time during pause: ", props.access.globalState.sessionTime);
         hasChanged.current = true;
         updatedTimerVal.current = props.access.globalState.sessionTime;
       }
     }
     else {
       if (initTimerVal.current !== props.access.globalState.breakTime) {
-        // console.log("A global state change has occurred(breakTime)")
-        // console.log("Time before play: ", initTimerVal.current);
-        // console.log("Time during pause: ", props.access.globalState.sessionTime);
         hasChanged.current = true;
         updatedTimerVal.current = props.access.globalState.breakTime;
       }
@@ -319,8 +313,6 @@ function Timer(props) {
   let timeLeft = '';
 
   if(timerActive || timerPaused) {
-    // console.log("Time render block 1 entered!");
-    // console.log("timer active?", timerActive, "timer paused?", timerPaused);
     if (minutesLeft < 10) {
       timeLeft += '0'+minutesLeft;
     }else {
@@ -336,8 +328,6 @@ function Timer(props) {
     }
   }
   else {
-    // console.log("Time render block 2 entered!");
-    // console.log("timer active?", timerActive, "timer paused?", timerPaused);
     if (sessionActive) {
         if(props.access.globalState.sessionTime < 10) {
             timeLeft += '0' + props.access.globalState.sessionTime;
@@ -361,14 +351,14 @@ function Timer(props) {
   }
 
   return (
-    <div>
+    <div id="timer">
         <div id="timer-label">{sessionActive ? "Session" : "Break"}</div>
         <div id="time-left">{timeLeft}</div>
         <div id="control-buttons">
-            <button id="start_stop" className="btn" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
-            <button id="reset" className="btn" onClick={resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
+            <button id="start_stop" className="btn btn-dark" onClick={startStopTimer}>{timerActive ? <FontAwesomeIcon icon={faPause} /> : <FontAwesomeIcon icon={faPlay} />}</button>
+            <button id="reset" className="btn btn-dark" onClick={resetTimer}><FontAwesomeIcon icon={faRefresh} /></button>
         </div>      
-        </div>
+    </div>
   )
 }
 
