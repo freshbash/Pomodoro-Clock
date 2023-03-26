@@ -189,21 +189,30 @@ function Timer(props) {
 
   //Ref
   const timerRef = useRef(null);
+  const initTimerVal = useRef(null);
+  const updatedTimerVal = useRef(null);
+  const hasChanged = useRef(false);
+  const checkChange = useRef(null);
 
   function startStopTimer() {
+
+    clearInterval(checkChange.current);
+
+    let session = sessionActive;        
+    let seconds = secondsLeft;
+    let minutes;
 
     if (!timerActive) {
 
         props.access.disableButtons();
 
-        let session = sessionActive;        
-        let seconds = secondsLeft;
-        let minutes;
         if (!timerPaused) {
             if (session) {
+                initTimerVal.current = props.access.globalState.sessionTime;
                 minutes = props.access.globalState.sessionTime;
             }
             else {
+                initTimerVal.current = props.access.globalState.breakTime;
                 minutes = props.access.globalState.breakTime;
             }
             setMinutesLeft(minutes);
@@ -218,9 +227,11 @@ function Timer(props) {
             session = !session;
             setSessionActive(session);
             if (session) {
+                initTimerVal.current = props.access.globalState.sessionTime;
                 minutes = props.access.globalState.sessionTime;
             }
             else {
+              initTimerVal.current = props.access.globalState.breakTime;
                 minutes = props.access.globalState.breakTime;
             }
             seconds = 0;
@@ -243,23 +254,65 @@ function Timer(props) {
     }
     else {
         setTimerPaused(true);
-        // props.access.enableButtons();
+        props.access.enableButtons();
         clearInterval(timerRef.current);
+        checkChange.current = setInterval(() => {
+          if (hasChanged.current) {
+            minutes = updatedTimerVal.current;            
+            seconds = 0;
+            setMinutesLeft(minutes);
+            setSecondsLeft(seconds);
+            initTimerVal.current = updatedTimerVal.current;
+            hasChanged.current = false;
+          }
+        }, 10);
     }
 
     setTimerActive(!timerActive);
   }
 
   function resetTimer() {
-    //Pause and reset the beep.
-    props.access.resetClock();
-    setSessionActive(true);
-    setSecondsLeft(0);
+    //Clear intervals
     clearInterval(timerRef.current);
+    clearInterval(checkChange.current);
+    //Global state
+    props.access.resetClock();
+    props.access.enableButtons();
+    //Local state
+    setMinutesLeft(null)
+    setSecondsLeft(0);
+    setSessionActive(true);
     setTimerActive(false);
     setTimerPaused(false);
-    props.access.enableButtons();
+    //Refs
+    timerRef.current = null;
+    initTimerVal.current = null;
+    updatedTimerVal.current = null;
+    hasChanged.current = false;
+    checkChange.current = null;
+    //Reset the beep
     document.getElementById("beep").load();
+  }
+
+  if (timerPaused) {    
+    if (sessionActive) {
+      if (initTimerVal.current !== props.access.globalState.sessionTime) {
+        // console.log("A global state change has occurred(sessionTime)");
+        // console.log("Time before play: ", initTimerVal.current);
+        // console.log("Time during pause: ", props.access.globalState.sessionTime);
+        hasChanged.current = true;
+        updatedTimerVal.current = props.access.globalState.sessionTime;
+      }
+    }
+    else {
+      if (initTimerVal.current !== props.access.globalState.breakTime) {
+        // console.log("A global state change has occurred(breakTime)")
+        // console.log("Time before play: ", initTimerVal.current);
+        // console.log("Time during pause: ", props.access.globalState.sessionTime);
+        hasChanged.current = true;
+        updatedTimerVal.current = props.access.globalState.breakTime;
+      }
+    }
   }
 
   //Format time left in mm:ss format
