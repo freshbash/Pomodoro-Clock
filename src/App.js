@@ -64,13 +64,23 @@ const reset = () => {
 const sessionReducer = (state=25, action) => {
     switch(action.type) {
         case INCREMENTSESSION:
-          return (
-            state + 1
-          );
+          if (state < 60) {
+            return (
+              state + 1
+            );
+          }
+          else {
+            return state;
+          }
         case DECREMENTSESSION:
-          return (
-            state - 1
-          );
+          if (state > 1) {
+            return (
+              state - 1
+            );
+          }
+          else {
+            return state;
+          }
         case RESET:
           return (
             25
@@ -83,13 +93,23 @@ const sessionReducer = (state=25, action) => {
 const breakReducer = (state=5, action) => {
     switch(action.type) {
         case INCREMENTBREAK:
-          return (
-            state + 1
-          );
+          if (state < 60) {
+            return (
+              state + 1
+            );
+          }
+          else {
+            return state;
+          }
         case DECREMENTBREAK:
-          return (
-            state - 1
-          );
+          if (state > 1) {
+            return (
+              state - 1
+            );
+          }
+          else {
+            return state;
+          }
         case RESET:
           return (
             5
@@ -129,19 +149,19 @@ export const store = configureStore({reducer : rootReducer});
 //React
 function TimeSetter(props) {
   function increment() {
-    if (props.name === "session" && props.access.state.sessionTime < 60) {
+    if (props.name === "session") {
       props.access.incrementSessionTimer();
     }
-    else if (props.name === "break" && props.access.state.breakTime < 60) {
+    else if (props.name === "break") {
       props.access.incrementBreakTimer();      
     }
   }
 
   function decrement () {
-    if (props.name === "session" && props.access.state.sessionTime > 1) {
+    if (props.name === "session") {
       props.access.decrementSessionTimer();
     }
-    else if (props.name === "break" && props.access.state.breakTime > 1) {
+    else if (props.name === "break") {
       props.access.decrementBreakTimer();      
     }
   }
@@ -150,9 +170,9 @@ function TimeSetter(props) {
     <div>
       <div id={props.name + "-label"}>{props.string}</div>
       <div id={props.name + "-length-setter"}>
-        <button id={props.name + "-decrement"} className="btn" onClick={decrement} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faMinus} /></button>
-        <div id={props.name + "-length"}>{props.name === "session" ? props.access.state.sessionTime : props.access.state.breakTime}</div>
-        <button id={props.name + "-increment"} className="btn" onClick={increment} disabled={props.access.state.disabled}><FontAwesomeIcon icon={faPlus} /></button>        
+        <button id={props.name + "-decrement"} className="btn" onClick={decrement} disabled={props.access.globalState.disabled}><FontAwesomeIcon icon={faMinus} /></button>
+        <div id={props.name + "-length"}>{props.name === "session" ? props.access.globalState.sessionTime : props.access.globalState.breakTime}</div>
+        <button id={props.name + "-increment"} className="btn" onClick={increment} disabled={props.access.globalState.disabled}><FontAwesomeIcon icon={faPlus} /></button>
       </div>
     </div>
   )
@@ -169,8 +189,6 @@ function Timer(props) {
 
   //Ref
   const timerRef = useRef(null);
-  const currentBreakState = useRef(props.access.state.breakTime);
-  const currentSessionState = useRef(props.access.state.sessionTime);
 
   function startStopTimer() {
 
@@ -183,10 +201,10 @@ function Timer(props) {
         let minutes;
         if (!timerPaused) {
             if (session) {
-                minutes = props.access.state.sessionTime;
+                minutes = props.access.globalState.sessionTime;
             }
             else {
-                minutes = props.access.state.breakTime;
+                minutes = props.access.globalState.breakTime;
             }
             setMinutesLeft(minutes);
         }
@@ -200,10 +218,10 @@ function Timer(props) {
             session = !session;
             setSessionActive(session);
             if (session) {
-                minutes = props.access.state.sessionTime;
+                minutes = props.access.globalState.sessionTime;
             }
             else {
-                minutes = props.access.state.breakTime;
+                minutes = props.access.globalState.breakTime;
             }
             seconds = 0;
             setMinutesLeft(minutes);
@@ -225,7 +243,7 @@ function Timer(props) {
     }
     else {
         setTimerPaused(true);
-        props.access.enableButtons();
+        // props.access.enableButtons();
         clearInterval(timerRef.current);
     }
 
@@ -268,21 +286,21 @@ function Timer(props) {
     // console.log("Time render block 2 entered!");
     // console.log("timer active?", timerActive, "timer paused?", timerPaused);
     if (sessionActive) {
-        if(props.access.state.sessionTime < 10) {
-            timeLeft += '0' + props.access.state.sessionTime;
+        if(props.access.globalState.sessionTime < 10) {
+            timeLeft += '0' + props.access.globalState.sessionTime;
         }
         else {
-            timeLeft += props.access.state.sessionTime;
+            timeLeft += props.access.globalState.sessionTime;
         }
 
         timeLeft += ":00";
     }
     else {
-        if(props.access.state.breakTime < 10) {
-            timeLeft += '0' + props.access.state.breakTime;
+        if(props.access.globalState.breakTime < 10) {
+            timeLeft += '0' + props.access.globalState.breakTime;
         }
         else {
-            timeLeft += props.access.state.breakTime;
+            timeLeft += props.access.globalState.breakTime;
         }
 
         timeLeft += ":00";
@@ -313,7 +331,7 @@ export function Presentational(props) {
 
 const mapStateToProps = (state) => {
   return ({
-      state: state
+      globalState: state
   });
 }
 
